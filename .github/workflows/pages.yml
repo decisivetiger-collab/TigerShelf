@@ -26,22 +26,23 @@ jobs:
         run: |
           python - <<'PY'
           import base64
-          import gzip
+          import zlib
           from pathlib import Path
+
+          def expand(payload):
+              data = base64.b64decode(payload)
+              return zlib.decompress(data[10:-8], -zlib.MAX_WBITS).decode('utf-8')
 
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          styles_payload = Path('styles-01.b64').read_text(encoding='ascii')
-          app_payload = ''.join(Path(name).read_text(encoding='ascii') for name in (
+          styles = expand(Path('styles-01.b64').read_text(encoding='ascii'))
+          app = expand(''.join(Path(name).read_text(encoding='ascii') for name in (
               'app-01.b64', 'app-02.b64', 'app-03.b64'
-          ))
-          styles = gzip.decompress(base64.b64decode(styles_payload)).decode('utf-8')
-          app = gzip.decompress(base64.b64decode(app_payload)).decode('utf-8')
+          )))
           start = text.index('    <script type="module">')
           end = text.index('    </script>', start) + len('    </script>')
           expanded = f'    <style>\n{styles}\n    </style>\n    <script>\n{app}\n    </script>'
-          text = text[:start] + expanded + text[end:]
-          path.write_text(text, encoding='utf-8')
+          path.write_text(text[:start] + expanded + text[end:], encoding='utf-8')
           PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
