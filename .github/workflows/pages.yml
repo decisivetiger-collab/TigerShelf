@@ -22,24 +22,25 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Inline mobile runtime
+      - name: Expand mobile runtime
         run: |
           python - <<'PY'
+          import base64
+          import gzip
           from pathlib import Path
+
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          styles = Path('styles-01.b64').read_text(encoding='ascii')
-          app = ''.join(Path(name).read_text(encoding='ascii') for name in (
+          styles_payload = Path('styles-01.b64').read_text(encoding='ascii')
+          app_payload = ''.join(Path(name).read_text(encoding='ascii') for name in (
               'app-01.b64', 'app-02.b64', 'app-03.b64'
           ))
-          text = text.replace(
-              'await loadPayload(["styles-01.b64"])',
-              f'await inflateText("{styles}")',
-          )
-          text = text.replace(
-              'await loadPayload(["app-01.b64","app-02.b64","app-03.b64"])',
-              f'await inflateText("{app}")',
-          )
+          styles = gzip.decompress(base64.b64decode(styles_payload)).decode('utf-8')
+          app = gzip.decompress(base64.b64decode(app_payload)).decode('utf-8')
+          start = text.index('    <script type="module">')
+          end = text.index('    </script>', start) + len('    </script>')
+          expanded = f'    <style>\n{styles}\n    </style>\n    <script>\n{app}\n    </script>'
+          text = text[:start] + expanded + text[end:]
           path.write_text(text, encoding='utf-8')
           PY
       - uses: actions/configure-pages@v5
