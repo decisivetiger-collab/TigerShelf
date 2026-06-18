@@ -6,7 +6,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
   pages: write
   id-token: write
 
@@ -22,36 +22,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - name: Patch iOS Home Screen unlock
-        shell: bash
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          path = Path('index.html')
-          text = path.read_text(encoding='utf-8')
-          old_css = ".lock p{max-width:380px;color:var(--muted);line-height:1.5}.note"
-          new_css = ".lock p{max-width:380px;color:var(--muted);line-height:1.5}.unlock{display:grid;gap:9px;max-width:380px;margin:18px auto 0}.unlock input{font-size:16px}.unlock button{min-height:45px;border:1px solid var(--ink);border-radius:10px;background:var(--ink);color:white;font-weight:800}.note"
-          text = text.replace(old_css, new_css)
-          old_lock = '<div id="lock" class="lock"><div><div class="mark" style="margin:auto">TS</div><h1>Private link required</h1><p>Open TigerShelf using the complete private link. The decryption key is stored after <b>#key=</b> and is never sent to GitHub.</p></div></div>'
-          new_lock = '<div id="lock" class="lock"><div><div class="mark" style="margin:auto">TS</div><h1>Unlock TigerShelf</h1><p>iPhone and iPad Home Screen apps may remove the private part of a link. Paste your private key once; TigerShelf will remember it only on this device.</p><form id="unlockForm" class="unlock"><input id="keyInput" autocomplete="off" autocapitalize="none" spellcheck="false" placeholder="Paste private key"><button>Unlock library</button></form></div></div>'
-          text = text.replace(old_lock, new_lock)
-          start = text.index('async function unlock(){')
-          end = text.index('function render(){', start)
-          new_unlock = """async function unlock(){let raw=new URLSearchParams(location.hash.slice(1)).get('key')||localStorage.getItem('tigershelf-private-key');if(!raw){if(localStorage.getItem(DB)){$('#lock').classList.remove('show');return true}$('#lock').classList.add('show');return false}try{let k=b64u(raw),r=await fetch('payload.b64',{cache:'no-store'}),bin=atob((await r.text()).trim()),p=Uint8Array.from(bin,c=>c.charCodeAt(0)),iv=p.slice(0,16),sig=p.slice(16,48),ct=p.slice(48),signed=new Uint8Array(iv.length+ct.length);signed.set(iv);signed.set(ct,iv.length);let hk=await crypto.subtle.importKey('raw',k.slice(32),{name:'HMAC',hash:'SHA-256'},false,['verify']);if(!await crypto.subtle.verify('HMAC',hk,sig,signed))throw Error();let ak=await crypto.subtle.importKey('raw',k.slice(0,32),'AES-CBC',false,['decrypt']),clear=await crypto.subtle.decrypt({name:'AES-CBC',iv},ak,ct),seed=JSON.parse(new TextDecoder().decode(clear));localStorage.setItem('tigershelf-private-key',raw);if(!localStorage.getItem(DB)){data={novels:seed.novels||[],inbox:seed.inbox||[]};save()}$('#lock').classList.remove('show');return true}catch(e){localStorage.removeItem('tigershelf-private-key');$('#lock').classList.add('show');return false}}"""
-          text = text[:start] + new_unlock + text[end:]
-          marker = "$('#search').oninput=render;"
-          handler = "$('#unlockForm').onsubmit=async e=>{e.preventDefault();let raw=$('#keyInput').value.trim().replace(/^.*#key=/,'');if(!raw)return;location.hash='key='+raw;if(await unlock())render()};"
-          if handler not in text:
-              text = text.replace(marker, handler + marker)
-          path.write_text(text, encoding='utf-8')
-          PY
-          if ! git diff --quiet -- index.html; then
-            git config user.name "TigerShelf Publisher"
-            git config user.email "actions@users.noreply.github.com"
-            git add index.html
-            git commit -m "Remember private key for iOS Home Screen"
-            git push
-          fi
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
