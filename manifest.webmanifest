@@ -1,0 +1,10 @@
+{
+  "name": "TigerShelf",
+  "short_name": "TigerShelf",
+  "description": "Private local-first novel library",
+  "start_url": "./",
+  "scope": "./",
+  "display": "standalone",
+  "background_color": "#f5f2e9",
+  "theme_color": "#171a16"
+}
