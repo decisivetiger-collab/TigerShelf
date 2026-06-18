@@ -22,6 +22,26 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+      - name: Inline mobile runtime
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          styles = Path('styles-01.b64').read_text(encoding='ascii')
+          app = ''.join(Path(name).read_text(encoding='ascii') for name in (
+              'app-01.b64', 'app-02.b64', 'app-03.b64'
+          ))
+          text = text.replace(
+              'await loadPayload(["styles-01.b64"])',
+              f'await inflateText("{styles}")',
+          )
+          text = text.replace(
+              'await loadPayload(["app-01.b64","app-02.b64","app-03.b64"])',
+              f'await inflateText("{app}")',
+          )
+          path.write_text(text, encoding='utf-8')
+          PY
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3
         with:
