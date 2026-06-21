@@ -1,5 +1,5 @@
-const CACHE_NAME = "tigershelf-milestone-2-v2";
-const APP_SHELL = ["./","./index.html","./manifest.webmanifest","./payload.b64","./styles-01.b64","./app-01.b64","./app-02.b64","./app-03.b64"];
+const CACHE_NAME = "tigershelf-mobile-41f60d0f760e";
+const APP_SHELL = ["./","./index.html","./manifest.webmanifest","./payload.b64","./styles-01.b64","./app-01.b64","./app-02.b64","./app-03.b64","./app-04.b64"];
 
 self.addEventListener("install", (event) => {
   event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(APP_SHELL)));
