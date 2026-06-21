@@ -37,7 +37,7 @@
           <span class="brand-mark">TS</span>
           <span>
             <strong>TigerShelf</strong>
-            <small>Novel containers</small>
+            <small id="connectionLabel">Novel containers</small>
           </span>
         </button>
         <div class="top-actions">
@@ -109,6 +109,28 @@
         </section>
         <p id="detailDescription" class="synopsis"></p>
         <div class="source-note" id="sourceNote"></div>
+        <section class="desktop-tools" id="desktopTools" hidden>
+          <div class="desktop-heading">
+            <div>
+              <p class="eyebrow">Desktop workspace</p>
+              <h2>Translate and export</h2>
+            </div>
+            <button class="secondary-button" id="glossaryButton" type="button">Glossary</button>
+          </div>
+          <div class="translation-range">
+            <label>From<input id="batchStartInput" type="number" min="1" value="1" /></label>
+            <label>To<input id="batchEndInput" type="number" min="1" value="1" /></label>
+            <button class="primary-button" id="queueTranslationButton" type="button">
+              Queue translation
+            </button>
+          </div>
+          <p class="job-summary" id="jobSummary">Desktop queue is ready.</p>
+          <div class="export-row">
+            <button class="secondary-button" type="button" data-export-format="epub">EPUB</button>
+            <button class="secondary-button" type="button" data-export-format="txt">TXT</button>
+            <button class="secondary-button" type="button" data-export-format="docx">DOCX</button>
+          </div>
+        </section>
         <section class="chapter-section">
           <div class="section-heading">
             <div>
@@ -132,7 +154,21 @@
         <article>
           <p class="eyebrow" id="readerOrder"></p>
           <h1 id="readerTitle"></h1>
-          <div id="readerText" class="reader-text"></div>
+          <div class="reader-actions" id="readerActions" hidden>
+            <button class="primary-button" id="translateChapterButton" type="button">
+              Translate on desktop
+            </button>
+          </div>
+          <div class="reader-columns">
+            <section class="reader-pane">
+              <p class="eyebrow">Original source</p>
+              <div id="readerText" class="reader-text"></div>
+            </section>
+            <section class="reader-pane translation-pane" id="translationPane" hidden>
+              <p class="eyebrow">English translation</p>
+              <div id="readerTranslationText" class="reader-text"></div>
+            </section>
+          </div>
         </article>
       </main>
 
@@ -193,13 +229,80 @@
         A full backup includes metadata, covers, every parsed chapter, and the original EPUB source.
       </p>
       <div class="stacked-actions">
+        <button id="googleKeyButton" class="secondary-button" type="button" hidden>
+          Set Google Gemini key
+        </button>
         <button id="exportBackupButton" class="primary-button" type="button">Export full backup</button>
-        <label class="secondary-button">
+        <label class="secondary-button" id="restoreLabel">
           Restore backup
           <input id="restoreInput" type="file" accept=".json,application/json" hidden />
         </label>
       </div>
       <p id="storageEstimate" class="storage-estimate"></p>
+    </dialog>
+
+    <dialog id="googleKeyDialog" class="sheet-dialog small-dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">Desktop translation</p>
+          <h2>Set Google Gemini key</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button>
+      </div>
+      <p class="dialog-copy">
+        Create a fresh key in Google AI Studio. It is encrypted on this phone before being sent
+        directly to TigerShelf Desktop and is not saved in Safari.
+      </p>
+      <label class="key-field">
+        Gemini API key
+        <input
+          id="googleKeyInput"
+          type="password"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          placeholder="AIza…"
+        />
+      </label>
+      <a
+        class="secondary-button"
+        href="https://aistudio.google.com/app/apikey"
+        target="_blank"
+        rel="noreferrer"
+      >
+        Open Google AI Studio
+      </a>
+      <div class="dialog-actions glossary-actions">
+        <span></span><span></span>
+        <button class="secondary-button" type="button" data-close-dialog>Cancel</button>
+        <button id="saveGoogleKeyButton" class="primary-button" type="button">Save to desktop</button>
+      </div>
+    </dialog>
+
+    <dialog id="glossaryDialog" class="sheet-dialog">
+      <div class="dialog-heading">
+        <div>
+          <p class="eyebrow">Consistency rules</p>
+          <h2>Novel glossary</h2>
+        </div>
+        <button class="icon-button" type="button" data-close-dialog aria-label="Close">×</button>
+      </div>
+      <p class="dialog-copy">
+        Locked terms are sent with every desktop translation. Saving changes marks older
+        translations as stale so they can be repaired.
+      </p>
+      <div id="glossaryList" class="glossary-list"></div>
+      <div class="export-row">
+        <button id="addGlossaryTermButton" class="secondary-button" type="button">Add term</button>
+        <button id="suggestGlossaryButton" class="secondary-button" type="button">
+          Suggest from whole novel
+        </button>
+      </div>
+      <div class="dialog-actions glossary-actions">
+        <span></span><span></span>
+        <button class="secondary-button" type="button" data-close-dialog>Cancel</button>
+        <button id="saveGlossaryButton" class="primary-button" type="button">Save glossary</button>
+      </div>
     </dialog>
 
     <dialog id="importDialog" class="progress-dialog">
@@ -232,7 +335,7 @@
         const style = document.createElement("style");
         style.textContent = await loadPayload(["styles-01.b64"]);
         document.head.append(style);
-        const source = await loadPayload(["app-01.b64","app-02.b64","app-03.b64"]);
+        const source = await loadPayload(["app-01.b64","app-02.b64","app-03.b64","app-04.b64"]);
         (0, eval)(source + "\n//# sourceURL=tigershelf-mobile-bundle.js");
       } catch (error) {
         console.error(error);
