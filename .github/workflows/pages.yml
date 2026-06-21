@@ -37,7 +37,7 @@ jobs:
           text = path.read_text(encoding='utf-8')
           styles = expand(Path('styles-01.b64').read_text(encoding='ascii'))
           app = expand(''.join(Path(name).read_text(encoding='ascii') for name in (
-              'app-01.b64', 'app-02.b64', 'app-03.b64'
+              'app-01.b64', 'app-02.b64', 'app-03.b64', 'app-04.b64'
           )))
           start = text.index('    <script type="module">')
           end = text.index('    </script>', start) + len('    </script>')
