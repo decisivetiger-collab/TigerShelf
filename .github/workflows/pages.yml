@@ -35,10 +35,12 @@ jobs:
 
           path = Path('index.html')
           text = path.read_text(encoding='utf-8')
-          styles = expand(Path('styles-01.b64').read_text(encoding='ascii'))
-          app = expand(''.join(Path(name).read_text(encoding='ascii') for name in (
-              'app-01.b64', 'app-02.b64', 'app-03.b64', 'app-04.b64'
-          )))
+          style_chunks = sorted(Path('.').glob('styles-*.b64'))
+          app_chunks = sorted(Path('.').glob('app-*.b64'))
+          if not style_chunks or not app_chunks:
+              raise RuntimeError('Missing TigerShelf deployment chunks.')
+          styles = expand(''.join(path.read_text(encoding='ascii') for path in style_chunks))
+          app = expand(''.join(path.read_text(encoding='ascii') for path in app_chunks))
           start = text.index('    <script type="module">')
           end = text.index('    </script>', start) + len('    </script>')
           expanded = f'    <style>\n{styles}\n    </style>\n    <script>\n{app}\n    </script>'

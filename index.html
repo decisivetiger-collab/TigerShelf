@@ -41,12 +41,19 @@
           </span>
         </button>
         <div class="top-actions">
+          <button class="secondary-button compact-button" id="dropDeskButton" type="button" hidden>
+            Drop Desk
+          </button>
           <button class="icon-button" id="dataButton" type="button" aria-label="Backup and restore">
             ⇩
           </button>
-          <label class="primary-button import-button">
+          <label class="primary-button import-button" id="epubImportLabel">
             <span>Import EPUB</span>
             <input id="epubInput" type="file" accept=".epub,application/epub+zip" hidden />
+          </label>
+          <label class="primary-button import-button" id="addFilesLabel" hidden>
+            <span>Add files</span>
+            <input id="dropDeskFiles" type="file" multiple hidden />
           </label>
         </div>
       </header>
@@ -88,6 +95,52 @@
         </section>
       </main>
 
+      <main id="dropDeskPage" class="page drop-desk-page" hidden>
+        <section class="hero drop-desk-hero">
+          <div>
+            <p class="eyebrow">Permanent intake</p>
+            <h1>Drop Desk</h1>
+            <p class="drop-desk-copy">Put the files down now. Organize them later.</p>
+          </div>
+          <div class="count-block">
+            <strong id="dropDeskCount">0</strong>
+            <span>files</span>
+          </div>
+        </section>
+
+        <section class="vault-status" id="vaultStatus" aria-live="polite">
+          Checking permanent storage...
+        </section>
+
+        <div class="drop-desk-tabs" role="tablist" aria-label="Drop Desk sections">
+          <button id="rawsTab" class="drop-desk-tab active" type="button" role="tab">RAWS</button>
+          <button id="translatedTab" class="drop-desk-tab" type="button" role="tab">Translated</button>
+        </div>
+
+        <div class="drop-desk-tools">
+          <input id="dropDeskSearch" type="search" placeholder="Search filenames" />
+          <label class="secondary-button">
+            Add files
+            <input type="file" multiple data-drop-desk-files hidden />
+          </label>
+          <label class="secondary-button folder-button">
+            Add folder
+            <input id="dropDeskFolder" type="file" webkitdirectory multiple hidden />
+          </label>
+        </div>
+
+        <section id="dropDeskGrid" class="drop-desk-grid" aria-live="polite"></section>
+        <section id="dropDeskEmpty" class="empty-state" hidden>
+          <span class="empty-book">TS</span>
+          <h2 id="dropDeskEmptyTitle">RAWS is empty</h2>
+          <p>Any format is welcome. Unknown files are preserved here safely.</p>
+          <label class="primary-button">
+            Add files
+            <input type="file" multiple data-drop-desk-files hidden />
+          </label>
+        </section>
+      </main>
+
       <main id="detailPage" class="page detail-page" hidden>
         <div class="page-nav">
           <button class="back-button" type="button" data-back-library>← Library</button>
@@ -125,6 +178,9 @@
             </button>
           </div>
           <p class="job-summary" id="jobSummary">Desktop queue is ready.</p>
+          <button class="secondary-button danger" id="cancelQueueButton" type="button" hidden>
+            Cancel pending translations
+          </button>
           <div class="export-row">
             <button class="secondary-button" type="button" data-export-format="epub">EPUB</button>
             <button class="secondary-button" type="button" data-export-format="txt">TXT</button>
@@ -307,7 +363,7 @@
 
     <dialog id="importDialog" class="progress-dialog">
       <span class="spinner" aria-hidden="true"></span>
-      <p class="eyebrow">Building novel container</p>
+      <p class="eyebrow">Saving to TigerShelf</p>
       <h2 id="importTitle">Reading EPUB…</h2>
       <p id="importProgress">Preserving the original source.</p>
     </dialog>

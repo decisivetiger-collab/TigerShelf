@@ -1,4 +1,4 @@
-const CACHE_NAME = "tigershelf-mobile-41f60d0f760e";
+const CACHE_NAME = "tigershelf-mobile-8fb7e8abb549";
 const APP_SHELL = ["./","./index.html","./manifest.webmanifest","./payload.b64","./styles-01.b64","./app-01.b64","./app-02.b64","./app-03.b64","./app-04.b64"];
 
 self.addEventListener("install", (event) => {
